@@ -21,6 +21,7 @@ from eth_keys.datatypes import (
 from p2p.discv5 import identity_schemes as identity_schemes_module
 from p2p.discv5.identity_schemes import (
     default_identity_scheme_registry,
+    ecdh_agree,
     hkdf_expand_and_extract,
     IdentityScheme,
     V4IdentityScheme,
@@ -28,9 +29,6 @@ from p2p.discv5.identity_schemes import (
 from p2p.discv5.enr import (
     UnsignedENR,
     ENR,
-)
-from p2p.ecies import (
-    ecdh_agree,
 )
 
 from tests.p2p.discv5.strategies import (
@@ -246,9 +244,9 @@ def test_session_key_derivation(initiator_private_key, recipient_private_key, id
     ]
 ])
 def test_official_key_agreement(local_secret_key, remote_public_key, shared_secret_key):
-    local_secret_key_object = PrivateKey(local_secret_key)
-    remote_public_key_object = PublicKey(remote_public_key)
-    assert ecdh_agree(local_secret_key_object, remote_public_key_object) == shared_secret_key
+    public_key_object = PublicKey(remote_public_key)
+    public_key_compressed = public_key_object.to_compressed_bytes()
+    assert ecdh_agree(local_secret_key, public_key_compressed) == shared_secret_key
 
 
 @pytest.mark.parametrize(
